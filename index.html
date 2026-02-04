@@ -8,51 +8,61 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
-body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #ff7eb3, #ff4d6d);
-  font-family: Arial, sans-serif;
-  overflow: hidden;
-}
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #ff7eb3, #ff4d6d);
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
 
-.card {
-  text-align: center;
-  background: white;
-  padding: 48px 40px;
-  border-radius: 20px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-  position: relative;
-}
+  .card {
+    text-align: center;
+    background: white;
+    padding: 48px 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    position: relative;
+    max-width: 520px;
+    margin: 16px;
+    z-index: 2;
+  }
 
-h1 {
-  color: #ff4d6d;
-  margin-bottom: 30px;
-}
+  h1 {
+    color: #ff4d6d;
+    margin: 0 0 26px;
+  }
 
-button {
-  font-size: 20px;
-  padding: 12px 28px;
-  margin: 10px;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
+  button {
+    font-size: 20px;
+    padding: 12px 28px;
+    margin: 10px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
 
-#yesBtn {
-  background: #2ecc71;
-  color: white;
-}
+  #yesBtn {
+    background: #2ecc71;
+    color: white;
+  }
 
-#noBtn {
-  background: #ff4d6d;
-  color: white;
-  position: absolute;
-}
+  /* ✅ IMPORTANT: fixed means always relative to the screen */
+  #noBtn {
+    background: #ff4d6d;
+    color: white;
+    position: fixed;
+    left: 50%;
+    top: 70%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+  }
 </style>
 </head>
 
@@ -60,97 +70,103 @@ button {
 
 <div class="card">
   <h1>Yogita, will you be my Valentine? ❤️</h1>
-
-  <button id="yesBtn">Yes 🥰</button>
-  <button id="noBtn">No 😭</button>
+  <button id="yesBtn" type="button">Yes 🥰</button>
 </div>
 
+<!-- No button sits outside the card and is fixed to viewport -->
+<button id="noBtn" type="button">No 😜</button>
+
 <script>
-const yesBtn = document.getElementById("yesBtn");
-const noBtn = document.getElementById("noBtn");
+  const yesBtn = document.getElementById("yesBtn");
+  const noBtn  = document.getElementById("noBtn");
 
-let yesScale = 1; // growth tracker
+  let yesScale = 1;
 
-
-/* =========================
-   NO BUTTON MOVES + YES GROWS
-   ========================= */
-function moveButton() {
-
-  // move NO safely
-  const btnWidth = noBtn.offsetWidth;
-  const btnHeight = noBtn.offsetHeight;
-  const padding = 20;
-
-  const x = Math.random() * (window.innerWidth - btnWidth - padding);
-  const y = Math.random() * (window.innerHeight - btnHeight - padding);
-
-  noBtn.style.left = x + "px";
-  noBtn.style.top = y + "px";
-
-  // 😈 grow YES each time
-  yesScale += 0.15;
-  yesBtn.style.transform = `scale(${yesScale})`;
-}
-
-// desktop + mobile
-noBtn.addEventListener("mouseenter", moveButton);
-noBtn.addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  moveButton();
-}, { passive:false });
-
-
-
-/* =========================
-   YES CLICK → CONFETTI + GIFS
-   ========================= */
-yesBtn.addEventListener("click", () => {
-
-  if (typeof window.confetti === "function") {
-    window.confetti({
-      particleCount: 220,
-      spread: 120,
-      origin: { y: 0.6 }
-    });
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
   }
 
-  document.body.innerHTML = `
-    <div style="
-      height:100vh;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      text-align:center;
-      font-family:Arial,sans-serif;
-      color:white;
-      padding:20px;
-    ">
+  function moveNoAndGrowYes() {
+    // Measure button size
+    const rect = noBtn.getBoundingClientRect();
+    const btnW = rect.width || 110;
+    const btnH = rect.height || 55;
 
-      <div style="font-size:48px; font-weight:bold; margin-bottom:22px;">
-        YAY!!!! ❤️🎉
-      </div>
+    const padding = 16;
 
+    // Compute safe bounds (never off-screen)
+    const minX = padding;
+    const minY = padding;
+    const maxX = window.innerWidth  - btnW - padding;
+    const maxY = window.innerHeight - btnH - padding;
+
+    // If screen is extremely small, just pin it within padding
+    const x = clamp(Math.random() * maxX, minX, Math.max(minX, maxX));
+    const y = clamp(Math.random() * maxY, minY, Math.max(minY, maxY));
+
+    noBtn.style.left = x + "px";
+    noBtn.style.top  = y + "px";
+    noBtn.style.transform = "translate(0, 0)";
+
+    // Grow YES every time she tries NO 😈
+    yesScale = Math.min(yesScale + 0.18, 2.8); // cap so it doesn’t become ridiculous
+    yesBtn.style.transform = `scale(${yesScale})`;
+  }
+
+  // Make NO dodge on desktop + mobile
+  noBtn.addEventListener("mouseenter", moveNoAndGrowYes);
+  noBtn.addEventListener("mousedown", (e) => { e.preventDefault(); moveNoAndGrowYes(); });
+  noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveNoAndGrowYes(); }, { passive: false });
+
+  // If screen size changes, keep it visible
+  window.addEventListener("resize", () => {
+    // If current position ends up out of bounds after resize, reposition safely
+    const rect = noBtn.getBoundingClientRect();
+    if (rect.right > window.innerWidth || rect.bottom > window.innerHeight || rect.left < 0 || rect.top < 0) {
+      moveNoAndGrowYes();
+    }
+  });
+
+  // YES click -> confetti + GIF grid
+  yesBtn.addEventListener("click", () => {
+    if (typeof window.confetti === "function") {
+      window.confetti({ particleCount: 220, spread: 120, origin: { y: 0.6 } });
+    }
+
+    document.body.innerHTML = `
       <div style="
-        display:grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap:14px;
-        max-width:420px;
+        height:100vh;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+        text-align:center;
+        font-family:Arial,sans-serif;
+        color:white;
+        padding:20px;
       ">
-        <img src="spaghetti.gif" style="width:100%; border-radius:14px;">
-        <img src="Cuddle.gif" style="width:100%; border-radius:14px;">
-        <img src="Celebrate.gif" style="width:100%; border-radius:14px;">
-        <img src="Dancing.gif" style="width:100%; border-radius:14px;">
-      </div>
+        <div style="font-size:48px; font-weight:bold; margin-bottom:22px;">
+          YAY!!!!!!1 ❤️🎉
+        </div>
 
-      <div style="margin-top:18px; font-size:20px;">
-        I CAN'T WAIT TO CELEBRATE 😍
-      </div>
+        <div style="
+          display:grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap:14px;
+          max-width:420px;
+        ">
+          <img src="spaghetti.gif" style="width:100%; border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
+          <img src="Cuddle.gif"    style="width:100%; border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
+          <img src="Celebrate.gif" style="width:100%; border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
+          <img src="Dancing.gif"   style="width:100%; border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
+        </div>
 
-    </div>
-  `;
-});
+        <div style="margin-top:18px; font-size:20px;">
+          I can't wait to celebrate squishee! 😍
+        </div>
+      </div>
+    `;
+  });
 </script>
 
 </body>
