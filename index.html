@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Be My Valentine?</title>
+
+<!-- Confetti -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #ff7eb3, #ff4d6d);
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+
+.card {
+  text-align: center;
+  background: white;
+  padding: 48px 40px;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+  max-width: 520px;
+  position: relative;
+}
+
+h1 {
+  color: #ff4d6d;
+  margin-bottom: 25px;
+}
+
+button {
+  font-size: 20px;
+  padding: 12px 28px;
+  margin: 10px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+}
+
+#yesBtn {
+  background: #2ecc71;
+  color: white;
+}
+
+#noBtn {
+  background: #ff4d6d;
+  color: white;
+  position: absolute;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>Yogita, will you be my Valentine? ❤️</h1>
+
+  <button id="yesBtn">Yes 🥰</button>
+  <button id="noBtn">No 😭</button>
+</div>
+
+<script>
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+
+
+// 😈 Move NO button
+function moveButton() {
+  const x = Math.random() * (window.innerWidth - 120);
+  const y = Math.random() * (window.innerHeight - 60);
+
+  noBtn.style.left = x + "px";
+  noBtn.style.top = y + "px";
+}
+
+noBtn.addEventListener("mouseover", moveButton);
+noBtn.addEventListener("click", moveButton);
+noBtn.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  moveButton();
+}, { passive:false });
+
+
+// 🎉 YES click → confetti + multiple GIFs
+yesBtn.addEventListener("click", () => {
+
+  // Safe confetti
+  if (typeof window.confetti === "function") {
+    window.confetti({
+      particleCount: 220,
+      spread: 120,
+      origin: { y: 0.6 }
+    });
+  }
+
+  document.body.innerHTML = `
+    <div style="
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      font-family:Arial,sans-serif;
+      color:white;
+      padding:20px;
+    ">
+
+      <div style="font-size:48px; font-weight:bold; margin-bottom:20px;">
+        YAY!!!! ❤️🎉
+      </div>
+
+      <div style="
+        display:grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap:14px;
+        max-width:420px;
+      ">
+
+        <img src="Spaghetti.gif" style="width:100%; border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
+        <img src="Cuddle.gif" style="width:100%; border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
+        <img src="Celebrate.gif" style="width:100%; border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
+        <img src="Dancing.gif" style="width:100%; border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
+
+      </div>
+
+      <div style="margin-top:18px; font-size:20px;">
+        I can't wait to celebrate with you! 😍
+      </div>
+
+    </div>
+  `;
+});
+</script>
+
+</body>
+</html>
