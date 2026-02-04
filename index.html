@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Be My Valentine? ❤️</title>
 
-<!-- Confetti -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
@@ -27,7 +26,6 @@ body {
   border-radius: 20px;
   box-shadow: 0 15px 40px rgba(0,0,0,0.2);
   position: relative;
-  max-width: 500px;
 }
 
 h1 {
@@ -42,7 +40,7 @@ button {
   border-radius: 12px;
   border: none;
   cursor: pointer;
-  position: relative;
+  transition: all 0.2s ease;
 }
 
 #yesBtn {
@@ -71,29 +69,31 @@ button {
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
+let yesScale = 1; // growth tracker
+
 
 /* =========================
-   FIXED "NO" BUTTON LOGIC
-   Always stays on screen
+   NO BUTTON MOVES + YES GROWS
    ========================= */
 function moveButton() {
 
+  // move NO safely
   const btnWidth = noBtn.offsetWidth;
   const btnHeight = noBtn.offsetHeight;
-
   const padding = 20;
 
-  const maxX = window.innerWidth - btnWidth - padding;
-  const maxY = window.innerHeight - btnHeight - padding;
-
-  const x = Math.random() * maxX;
-  const y = Math.random() * maxY;
+  const x = Math.random() * (window.innerWidth - btnWidth - padding);
+  const y = Math.random() * (window.innerHeight - btnHeight - padding);
 
   noBtn.style.left = x + "px";
   noBtn.style.top = y + "px";
+
+  // 😈 grow YES each time
+  yesScale += 0.15;
+  yesBtn.style.transform = `scale(${yesScale})`;
 }
 
-// move when hovered or touched
+// desktop + mobile
 noBtn.addEventListener("mouseenter", moveButton);
 noBtn.addEventListener("touchstart", (e) => {
   e.preventDefault();
@@ -101,12 +101,12 @@ noBtn.addEventListener("touchstart", (e) => {
 }, { passive:false });
 
 
+
 /* =========================
    YES CLICK → CONFETTI + GIFS
    ========================= */
 yesBtn.addEventListener("click", () => {
 
-  // confetti burst
   if (typeof window.confetti === "function") {
     window.confetti({
       particleCount: 220,
@@ -115,7 +115,6 @@ yesBtn.addEventListener("click", () => {
     });
   }
 
-  // success screen with your gifs
   document.body.innerHTML = `
     <div style="
       height:100vh;
@@ -139,10 +138,10 @@ yesBtn.addEventListener("click", () => {
         gap:14px;
         max-width:420px;
       ">
-        <img src="Spaghetti.gif" style="width:100%; border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
-        <img src="Cuddle.gif" style="width:100%; border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
-        <img src="Celebrate.gif" style="width:100%; border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
-        <img src="Dancing.gif" style="width:100%; border-radius:14px; box-shadow:0 8px 20px rgba(0,0,0,0.3);">
+        <img src="spaghetti.gif" style="width:100%; border-radius:14px;">
+        <img src="Cuddle.gif" style="width:100%; border-radius:14px;">
+        <img src="Celebrate.gif" style="width:100%; border-radius:14px;">
+        <img src="Dancing.gif" style="width:100%; border-radius:14px;">
       </div>
 
       <div style="margin-top:18px; font-size:20px;">
